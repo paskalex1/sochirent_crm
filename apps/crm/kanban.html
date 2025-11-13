@@ -1,0 +1,42 @@
+<!doctype html><html lang="ru"><head>
+<meta charset="utf-8"><title>{{ pipeline.name }} — Канбан</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .board{display:flex;gap:16px;align-items:flex-start;padding:16px}
+  .col{background:#f5f5f5;border-radius:8px;padding:8px;min-width:260px}
+  .col h3{margin:4px 0 8px}
+  .card{background:#fff;border-radius:6px;padding:8px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.1);cursor:grab}
+</style></head><body>
+<h1 style="padding:16px 16px 0">{{ pipeline.name }} — Канбан</h1>
+<div class="board">
+  {% for stage in stages %}
+    <div class="col" data-stage-id="{{ stage.id }}" ondragover="onDragOver(event)" ondrop="onDrop(event,this)">
+      <h3>{{ stage.name }}</h3>
+      {% for deal in stage.deals.all %}
+        <div class="card" draggable="true" data-deal-id="{{ deal.id }}" ondragstart="onDragStart(event,this)">
+          <strong>{{ deal.title }}</strong><br>
+          {% if deal.value %}Ценность: {{ deal.value }}{% endif %}
+        </div>
+      {% empty %}
+        <div style="opacity:.6;font-size:12px">Нет сделок</div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>
+<script>
+let dragged=null;
+function onDragStart(e,el){ dragged=el; e.dataTransfer.effectAllowed="move"; }
+function onDragOver(e){ e.preventDefault(); e.dataTransfer.dropEffect="move"; }
+function onDrop(e,col){
+  e.preventDefault(); if(!dragged) return;
+  const dealId = dragged.dataset.dealId;
+  const stageId = col.dataset.stageId;
+  col.appendChild(dragged);
+  fetch("{% url 'crm:move_deal' 0 %}".replace("0",dealId),{
+    method:"POST",
+    headers:{"X-CSRFToken":"{{ csrf_token }}","Content-Type":"application/x-www-form-urlencoded"},
+    body:"stage_id="+encodeURIComponent(stageId)
+  }).then(r=>r.json()).then(d=>{ if(d.status!=='ok') alert('Ошибка'); });
+}
+</script>
+</body></html>

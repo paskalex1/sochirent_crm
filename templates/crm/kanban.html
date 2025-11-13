@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Канбан — {{ pipeline.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Arial, sans-serif; margin: 0; padding: 20px; background: #f6f7f9;}
+    h1 { margin: 0 0 16px; font-size: 20px; }
+    .board { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+    .col { background: #fff; border-radius: 10px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .col h3 { font-size: 14px; margin: 0 0 10px; color: #333; display:flex; justify-content:space-between; align-items:center }
+    .counter { font-size: 12px; color:#666; }
+    .list { min-height: 40px; display: flex; flex-direction: column; gap: 10px; }
+    .card { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 10px; cursor: grab; }
+    .card:active { cursor: grabbing; }
+    .card h4 { font-size: 14px; margin: 0 0 6px; color:#111; }
+    .muted { font-size: 12px; color:#777; }
+    .drop-hover { outline: 2px dashed #4b8; }
+  </style>
+</head>
+<body>
+  <h1>Канбан — {{ pipeline.name }}</h1>
+
+  <div class="board">
+    {% for stage in stages %}
+      <section class="col" data-stage-id="{{ stage.id }}">
+        <h3>
+          <span>{{ stage.name }}</span>
+          <span class="counter">{{ stage.deals.count }}</span>
+        </h3>
+        <div class="list" ondragover="onDragOver(event)" ondrop="onDrop(event, {{ stage.id }})">
+          {% for deal in stage.deals.all %}
+            <article class="card" draggable="true"
+                     ondragstart="onDragStart(event, {{ deal.id }})"
+                     data-deal-id="{{ deal.id }}">
+              <h4>{{ deal.title }}</h4>
+              <div class="muted">
+                Лид: {{ deal.lead.full_name|default:deal.lead.phone }}
+                {% if deal.value %} • Сумма: {{ deal.value }}{% endif %}
+              </div>
+            </article>
+          {% empty %}
+            <div class="muted">Нет сделок</div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+
+  <script>
+    // === CSRF helper ===
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    let draggedDealId = null;
+
+    function onDragStart(ev, dealId) {
+      draggedDealId = dealId;
+      ev.dataTransfer.effectAllowed = 'move';
+      ev.dataTransfer.setData('text/plain', String(dealId));
+    }
+
+    function onDragOver(ev) {
+      ev.preventDefault(); // allow drop
+      const list = ev.currentTarget;
+      list.classList.add('drop-hover');
+    }
+
+    function onDrop(ev, stageId) {
+      ev.preventDefault();
+      ev.currentTarget.classList.remove('drop-hover');
+
+      const dealId = draggedDealId || Number(ev.dataTransfer.getData('text/plain'));
+      if (!dealId) return;
+
+      // Найдём карточку и переместим визуально
+      const card = document.querySelector(`.card[data-deal-id="${dealId}"]`);
+      if (card) ev.currentTarget.appendChild(card);
+
+      // Обновим счётчики колонок
+      document.querySelectorAll('.col').forEach(col => {
+        const count = col.querySelectorAll('.list .card').length;
+        col.querySelector('.counter').textContent = count;
+      });
+
+      // Отправим POST на backend
+      fetch(`/crm/deal/${dealId}/move/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken
+        },
+        body: new URLSearchParams({ stage_id: stageId })
+      }).then(res => {
+        if (!res.ok) throw new Error('Move failed');
+      }).catch(err => {
+        alert('Не удалось переместить: ' + err.message);
+        // TODO: при желании сделать rollback DOM
+      });
+    }
+  </script>
+</body>
+</html>
