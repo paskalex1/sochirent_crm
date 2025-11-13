@@ -1,11 +1,37 @@
 from pathlib import Path
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-secret"  # заменишь на .env позже
-DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+# ────────────────────────────────────────────
+# env-переменные (.env в корне проекта)
+# ────────────────────────────────────────────
+env = environ.Env(
+    DEBUG=(bool, False),
+)
 
+# читаем .env, если есть
+environ.Env.read_env(BASE_DIR / ".env")
+
+# ────────────────────────────────────────────
+# БАЗОВЫЕ НАСТРОЙКИ
+# ────────────────────────────────────────────
+DEBUG = env("DEBUG", default=True)
+SECRET_KEY = env("SECRET_KEY", default="dev-secret-change-me")
+
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS",
+    default=["127.0.0.1", "localhost"],
+)
+
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[],
+)
+
+# ────────────────────────────────────────────
+# ПРИЛОЖЕНИЯ
+# ────────────────────────────────────────────
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -29,9 +55,12 @@ INSTALLED_APPS = [
     "apps.finance",
 ]
 
+# ────────────────────────────────────────────
+# MIDDLEWARE
+# ────────────────────────────────────────────
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",   # Важно: выше CommonMiddleware
+    "corsheaders.middleware.CorsMiddleware",   # важно: выше CommonMiddleware
     "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -42,10 +71,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
+# ────────────────────────────────────────────
+# TEMPLATES
+# ────────────────────────────────────────────
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],   # <-- теперь корректно
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -60,30 +92,69 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Быстрый старт на SQLite
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# ────────────────────────────────────────────
+# БАЗА ДАННЫХ
+# ────────────────────────────────────────────
+# По умолчанию: SQLite (локальная разработка).
+# Если в .env задан DB_NAME — используем PostgreSQL.
+db_name = env("DB_NAME", default=None)
 
+if db_name:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db_name,
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD"),
+            "HOST": env("DB_HOST", default="127.0.0.1"),
+            "PORT": env("DB_PORT", default="5432"),
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
+# ────────────────────────────────────────────
+# ЛОКАЛИЗАЦИЯ
+# ────────────────────────────────────────────
 LANGUAGE_CODE = "ru-ru"
 TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+# ────────────────────────────────────────────
+# СТАТИКА / МЕДИА
+# ────────────────────────────────────────────
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# dev-CORS
-CORS_ALLOW_ALL_ORIGINS = True
+# ────────────────────────────────────────────
+# CORS
+# ────────────────────────────────────────────
+CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=True)
 
+# ────────────────────────────────────────────
+# DRF / AUTH
+# ────────────────────────────────────────────
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+    ),
 }
 
-LEAD_API_KEY = "super_long_random_secret_change_me"
+# ────────────────────────────────────────────
+# ИНТЕГРАЦИОННЫЕ КЛЮЧИ
+# ────────────────────────────────────────────
+LEAD_API_KEY = env("LEAD_API_KEY", default="")
