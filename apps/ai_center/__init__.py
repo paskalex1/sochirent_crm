@@ -1,0 +1,4 @@
+"""
+AI Control Center application.
+"""
+

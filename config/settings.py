@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "corsheaders",
 
     # наши
+    "apps.accounts",
+    "apps.ai_center",
     "apps.crm",
     "apps.owners",
     "apps.properties",
@@ -53,6 +55,7 @@ INSTALLED_APPS = [
     "apps.bookings",
     "apps.operations",
     "apps.finance",
+    "apps.staff",
 ]
 
 # ────────────────────────────────────────────
@@ -147,12 +150,20 @@ CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL_ORIGINS", default=True)
 # ────────────────────────────────────────────
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
     ),
     "DEFAULT_FILTER_BACKENDS": (
         "django_filters.rest_framework.DjangoFilterBackend",
     ),
 }
+
+# ────────────────────────────────────────────
+# DJANGO AUTH (HTML)
+# ────────────────────────────────────────────
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # ────────────────────────────────────────────
 # ИНТЕГРАЦИОННЫЕ КЛЮЧИ

@@ -10,3 +10,6 @@ media/
 .env
 .vscode/
 .idea/
+tasks_for_crm_ai.md
+# Local AI tools artifacts
+.agentic-tools-mcp/

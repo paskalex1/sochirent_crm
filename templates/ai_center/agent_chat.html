@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Чат с агентом {{ agent.name }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h1 class="h4 mb-0">Чат с агентом {{ agent.name }}</h1>
+      <div class="text-muted small">
+        Сессия: <code>{{ conversation.session_id }}</code>
+      </div>
+    </div>
+
+    <div>
+      <a
+        href="{% url 'ai_center:agent_chat_start' agent.slug %}"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        Новый диалог
+      </a>
+    </div>
+  </div>
+
+  <div class="mb-4 border rounded bg-white" style="max-height: 480px; overflow-y: auto;">
+    <ul class="list-group list-group-flush">
+      {% for msg in messages %}
+        <li class="list-group-item">
+          <div class="small text-muted">
+            {% if msg.role == "user" %}Вы{% elif msg.role == "assistant" %}Агент{% elif msg.role == "tool" %}Инструмент{% else %}Система{% endif %}
+            · {{ msg.created_at|date:"H:i:s" }}
+            {% if msg.tool_name %} · <code>{{ msg.tool_name }}</code>{% endif %}
+          </div>
+          <div class="mt-1">
+            {{ msg.content }}
+          </div>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">
+          Пока нет сообщений. Напишите первое сообщение агенту.
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <form method="post" class="mb-3">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="id_message" class="form-label">Сообщение</label>
+      <textarea
+        id="id_message"
+        name="message"
+        class="form-control"
+        rows="3"
+        required
+      ></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">
+      Отправить
+    </button>
+  </form>
+{% endblock %}
+

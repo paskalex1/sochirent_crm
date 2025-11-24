@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Главная — Sochi CRM{% endblock %}
+
+{% block content %}
+  <div class="mb-4">
+    <h1 class="h4 mb-1">Добро пожаловать в Sochi CRM</h1>
+    <p class="text-muted mb-0">
+      Выберите раздел в меню слева.
+    </p>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">Канбан</h5>
+          <p class="card-text text-muted">
+            Текущие сделки в виде канбан‑доски.
+          </p>
+          <a href="/crm/kanban/onboarding/" class="btn btn-sm btn-primary">
+            Открыть канбан
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

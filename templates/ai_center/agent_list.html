@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}AI Control Center — Агенты{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">AI‑агенты</h1>
+  </div>
+
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Имя</th>
+        <th>Описание</th>
+        <th>Модель</th>
+        <th>Статус</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for agent in agents %}
+        <tr>
+          <td>{{ agent.name }}</td>
+          <td class="text-muted small">{{ agent.description|default:"—" }}</td>
+          <td><code>{{ agent.model_name }}</code></td>
+          <td>
+            {% if agent.is_active %}
+              <span class="badge bg-success">Активен</span>
+            {% else %}
+              <span class="badge bg-secondary">Выключен</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if agent.is_active %}
+              <a
+                href="{% url 'ai_center:agent_chat_start' agent.slug %}"
+                class="btn btn-sm btn-primary"
+              >
+                Открыть чат
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-muted">
+            Пока нет ни одного агента.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="text-muted small">
+    Управление агентами и их конфигурацией инструментов пока выполняется через админ‑панель Django.
+  </p>
+{% endblock %}
+

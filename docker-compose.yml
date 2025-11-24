@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      # - mcp_server  # раскомментируй, когда добавишь реальный MCP‑контейнер
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Пример MCP‑сервера; замени image/порты на реальные.
+  # После этого в админке MCPServer.base_url указывай, например, http://mcp_server:3001/mcp
+  # и привязывай этот сервер к агентам.
+  # mcp_server:
+  #   image: your-mcp-image:latest
+  #   ports:
+  #     - "3001:3001"
+  #   environment:
+  #     - SOME_MCP_ENV=...
+
+volumes:
+  postgres_data:
+

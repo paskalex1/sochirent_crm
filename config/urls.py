@@ -1,26 +1,71 @@
 from django.contrib import admin
-from django.urls import path, include
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from apps.crm.api import LeadViewSet, DealViewSet, PipelineViewSet, StageViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("crm/", include("apps.crm.urls")),
-]
+from apps.bookings.api import (
+    BookingViewSet,
+    CalendarEventViewSet,
+    GuestViewSet,
+    RatePlanViewSet,
+)
+from apps.crm.api import DealViewSet, LeadViewSet, PipelineViewSet, StageViewSet
+from apps.crm.views import dashboard_view
+from apps.owners.api import OwnerViewSet
+from apps.properties.api import PropertyViewSet, UnitViewSet
+from apps.finance.api import (
+    ExpenseViewSet,
+    FinanceRecordViewSet,
+    FinanceSummaryView,
+    OwnerReportViewSet,
+    PayoutViewSet,
+)
+from apps.operations.api import (
+    CheckinTaskViewSet,
+    CheckoutTaskViewSet,
+    CleaningTaskViewSet,
+    MaintenanceTaskViewSet,
+    OwnerRequestTaskViewSet,
+    QualityInspectionTaskViewSet,
+    MaintenanceSLAReportView,
+)
 
 router = DefaultRouter()
 router.register(r"leads", LeadViewSet, basename="lead")
 router.register(r"deals", DealViewSet, basename="deal")
 router.register(r"pipelines", PipelineViewSet, basename="pipeline")
 router.register(r"stages", StageViewSet, basename="stage")
+router.register(r"owners", OwnerViewSet, basename="owner")
+router.register(r"properties", PropertyViewSet, basename="property")
+router.register(r"units", UnitViewSet, basename="unit")
+router.register(r"guests", GuestViewSet, basename="guest")
+router.register(r"rate-plans", RatePlanViewSet, basename="rateplan")
+router.register(r"bookings", BookingViewSet, basename="booking")
+router.register(r"calendar-events", CalendarEventViewSet, basename="calendarevent")
+router.register(r"tasks/cleaning", CleaningTaskViewSet, basename="cleaningtask")
+router.register(r"tasks/maintenance", MaintenanceTaskViewSet, basename="maintenancetask")
+router.register(r"tasks/checkin", CheckinTaskViewSet, basename="checkintask")
+router.register(r"tasks/checkout", CheckoutTaskViewSet, basename="checkouttask")
+router.register(
+    r"tasks/quality-inspection",
+    QualityInspectionTaskViewSet,
+    basename="qualityinspectiontask",
+)
+router.register(
+    r"tasks/owner-request",
+    OwnerRequestTaskViewSet,
+    basename="ownerrequesttask",
+)
+router.register(r"finance-records", FinanceRecordViewSet, basename="financerecord")
+router.register(r"expenses", ExpenseViewSet, basename="expense")
+router.register(r"payouts", PayoutViewSet, basename="payout")
+router.register(r"owner-reports", OwnerReportViewSet, basename="ownerreport")
 
 urlpatterns = [
+    path("", dashboard_view, name="dashboard"),
     path("admin/", admin.site.urls),
     path("crm/", include("apps.crm.urls")),
+    path("accounts/", include("apps.accounts.urls")),
     path("api/v1/", include(router.urls)),
-    path("api/v1/auth/jwt/create/", TokenObtainPairView.as_view(), name="jwt-create"),
-    path("api/v1/auth/jwt/refresh/", TokenRefreshView.as_view(), name="jwt-refresh"),
+    path("api/v1/finance-summary/", FinanceSummaryView.as_view(), name="finance-summary"),
+    path("api/v1/maintenance-sla/", MaintenanceSLAReportView.as_view(), name="maintenance-sla"),
 ]
