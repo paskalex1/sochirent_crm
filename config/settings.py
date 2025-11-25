@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     "apps.operations",
     "apps.finance",
     "apps.staff",
+    "apps.reviews",
+    "apps.revenue",
 ]
 
 # ────────────────────────────────────────────
@@ -169,3 +171,9 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 # ИНТЕГРАЦИОННЫЕ КЛЮЧИ
 # ────────────────────────────────────────────
 LEAD_API_KEY = env("LEAD_API_KEY", default="")
+
+# ────────────────────────────────────────────
+# OpenAI / AI‑сервисы
+# ────────────────────────────────────────────
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+OPENAI_MODEL_NAME = env("OPENAI_MODEL_NAME", default="gpt-5.1")

@@ -153,6 +153,29 @@ class MaintenanceTask(TaskBaseModel):
         help_text="Обязателен при закрытии задачи.",
     )
 
+    ai_problem_type = models.CharField(
+        "AI: тип проблемы",
+        max_length=100,
+        blank=True,
+        help_text="Например: plumbing, electricity, appliance.",
+    )
+    ai_urgency = models.CharField(
+        "AI: срочность",
+        max_length=20,
+        blank=True,
+        help_text="low | medium | high | critical.",
+    )
+    ai_recommendation = models.TextField(
+        "AI: рекомендация",
+        blank=True,
+        help_text="Краткое пояснение/что сделать.",
+    )
+    ai_last_analyzed_at = models.DateTimeField(
+        "AI: время последнего анализа",
+        blank=True,
+        null=True,
+    )
+
     def save(self, *args, **kwargs):
         # Фиксация времени закрытия для SLA.
         if self.pk:

@@ -11,5 +11,7 @@ media/
 .vscode/
 .idea/
 tasks_for_crm_ai.md
+tasks_for_crm_ui.md
 # Local AI tools artifacts
 .agentic-tools-mcp/
+.DS_Store

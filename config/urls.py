@@ -10,8 +10,16 @@ from apps.bookings.api import (
 )
 from apps.crm.api import DealViewSet, LeadViewSet, PipelineViewSet, StageViewSet
 from apps.crm.views import dashboard_view
+from apps.ai.api import MaintenanceTaskAIAnalyzeView, ReviewAnalyzeView
 from apps.owners.api import OwnerViewSet
-from apps.properties.api import PropertyViewSet, UnitViewSet
+from apps.owners.extranet_api import OwnerDashboardView, OwnerReportsView
+from apps.revenue.api import PriceRecommendationListView, PriceSuggestionView
+from apps.properties.api import (
+    GMDashboardView,
+    PropertyManagerDashboardView,
+    PropertyViewSet,
+    UnitViewSet,
+)
 from apps.finance.api import (
     ExpenseViewSet,
     FinanceRecordViewSet,
@@ -65,6 +73,42 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("crm/", include("apps.crm.urls")),
     path("accounts/", include("apps.accounts.urls")),
+    path("api/v1/gm-dashboard/", GMDashboardView.as_view(), name="gm-dashboard"),
+    path(
+        "api/v1/extranet/owner/dashboard/",
+        OwnerDashboardView.as_view(),
+        name="owner-extranet-dashboard",
+    ),
+    path(
+        "api/v1/extranet/owner/reports/",
+        OwnerReportsView.as_view(),
+        name="owner-extranet-reports",
+    ),
+    path(
+        "api/v1/property-manager/dashboard/",
+        PropertyManagerDashboardView.as_view(),
+        name="property-manager-dashboard",
+    ),
+    path(
+        "api/v1/ai/reviews/analyze/",
+        ReviewAnalyzeView.as_view(),
+        name="ai-review-analyze",
+    ),
+    path(
+        "api/v1/ai/tasks/maintenance/<int:pk>/analyze/",
+        MaintenanceTaskAIAnalyzeView.as_view(),
+        name="ai-maintenance-task-analyze",
+    ),
+    path(
+        "api/v1/revenue/price-suggestion/",
+        PriceSuggestionView.as_view(),
+        name="revenue-price-suggestion",
+    ),
+    path(
+        "api/v1/revenue/price-recommendations/",
+        PriceRecommendationListView.as_view(),
+        name="revenue-price-recommendations",
+    ),
     path("api/v1/", include(router.urls)),
     path("api/v1/finance-summary/", FinanceSummaryView.as_view(), name="finance-summary"),
     path("api/v1/maintenance-sla/", MaintenanceSLAReportView.as_view(), name="maintenance-sla"),

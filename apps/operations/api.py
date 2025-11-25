@@ -56,6 +56,16 @@ class MaintenanceTaskSerializer(TaskBaseSerializer):
             "issue_type",
             "urgency",
             "can_check_in",
+            "ai_problem_type",
+            "ai_urgency",
+            "ai_recommendation",
+            "ai_last_analyzed_at",
+        ]
+        read_only_fields = TaskBaseSerializer.Meta.read_only_fields + [
+            "ai_problem_type",
+            "ai_urgency",
+            "ai_recommendation",
+            "ai_last_analyzed_at",
         ]
 
 

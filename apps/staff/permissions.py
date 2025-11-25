@@ -107,6 +107,54 @@ class IsFinanceSummaryRole(BaseRolePermission):
     ]
 
 
+class IsPropertyManagerDashboardRole(BaseRolePermission):
+    """
+    Доступ к панели Property Manager Dashboard.
+    """
+
+    allowed_roles: List[str] = ["CEO", "COO", "PropertyManager"]
+
+
+class IsAIRole(BaseRolePermission):
+    """
+    Доступ к AI-эндпоинтам (анализ отзывов и задач).
+
+    Разрешён для ролей:
+      - CEO, COO,
+      - PropertyManager,
+      - GM,
+      - Maintenance,
+      - Quality.
+    """
+
+    allowed_roles: List[str] = [
+        "CEO",
+        "COO",
+        "PropertyManager",
+        "GM",
+        "Maintenance",
+        "Quality",
+    ]
+
+
+class IsRevenueRole(BaseRolePermission):
+    """
+    Доступ к эндпоинтам Revenue Management.
+
+    Разрешён для ролей:
+      - CEO, COO,
+      - PropertyManager,
+      - GM.
+    """
+
+    allowed_roles: List[str] = [
+        "CEO",
+        "COO",
+        "PropertyManager",
+        "GM",
+    ]
+
+
 ROLE_ACCESS_MATRIX = {
     # Зона: список ролей, которым по умолчанию разрешён доступ.
     "finance": ["CEO", "CFO", "Finance"],

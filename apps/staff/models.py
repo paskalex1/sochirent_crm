@@ -14,6 +14,7 @@ class Staff(models.Model):
     class Role(models.TextChoices):
         CEO = "CEO", "CEO"
         COO = "COO", "COO"
+        PROPERTY_MANAGER = "PropertyManager", "Property Manager"
         CFO = "CFO", "CFO"
         CBDO = "CBDO", "CBDO"
         HOTEL_DIRECTOR = "HotelDirector", "Hotel Director"
@@ -121,4 +122,3 @@ class Staff(models.Model):
 
         super().save(*args, **kwargs)
         self._sync_role_group(old_role)
-
